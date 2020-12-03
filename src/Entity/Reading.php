@@ -3,13 +3,18 @@
 namespace App\Entity;
 
 use App\Repository\ReadingRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use http\Exception\InvalidArgumentException;
 
 /**
  * @ORM\Entity(repositoryClass=ReadingRepository::class)
  */
 class Reading
 {
+
+    const VALID_TYPES = ['temperature', 'humidity', 'heater', 'connection'];
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -32,6 +37,11 @@ class Reading
      */
     private $value;
 
+    public function __construct()
+    {
+        $this->time = new DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -44,17 +54,19 @@ class Reading
 
     public function setType(string $type): self
     {
+        if($type != null && in_array($type, self::VALID_TYPES))
+            throw new \InvalidArgumentException("Invalid type");
         $this->type = $type;
 
         return $this;
     }
 
-    public function getTime(): ?\DateTimeImmutable
+    public function getTime(): ?DateTimeImmutable
     {
         return $this->time;
     }
 
-    public function setTime(\DateTimeImmutable $time): self
+    public function setTime(DateTimeImmutable $time): self
     {
         $this->time = $time;
 
