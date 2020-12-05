@@ -21,7 +21,7 @@ class AuthenticationSubscriber implements EventSubscriberInterface
 
         $key = $event->getRequest()->headers->get('Authorization');
         if (!in_array($key, $keys)) {
-            throw new AccessDeniedHttpException('This action needs a valid token!');
+            throw new AccessDeniedHttpException('This action needs a valid token! You gave: "'.$key.'"');
         }
     }
 

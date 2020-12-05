@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\RealTimeData;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,14 +14,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class RealTimeDataController extends AbstractController
 {
     /**
-     * @Route("/sensors", name="sensors")
+     * @Route("/readings", name="readings")
      * @param RealTimeData $realTimeData
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
-    public function standardInfo(RealTimeData $realTimeData): JsonResponse {
+    public function readingData(RealTimeData $realTimeData): JsonResponse {
 
         return new JsonResponse(
-            $realTimeData->getSensorData()
+            $realTimeData->getReadingData()
         );
     }
 
@@ -28,11 +30,12 @@ class RealTimeDataController extends AbstractController
      * @Route("/actions", name="actions")
      * @param RealTimeData $realTimeData
      * @return JsonResponse
+     * @throws InvalidArgumentException
      */
     public function getAction(RealTimeData $realTimeData): JsonResponse {
 
         return new JsonResponse(
-            $realTimeData->getActionData()
+            $realTimeData->getReadingData()
         );
     }
 }

@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Reading;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Exception;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,6 +19,34 @@ class ReadingRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Reading::class);
+    }
+
+    /**
+     * @return bool
+     */
+    public function getLastReadingEachType() {
+
+        $rsm = new ResultSetMapping();
+        $rsm->addEntityResult('App\Entity\Reading', 'r');
+        $rsm->addFieldResult('r','id','id');
+        $rsm->addFieldResult('r','type','type');
+        $rsm->addFieldResult('r','time','time');
+        $rsm->addFieldResult('r','value','value');
+
+        $query = $this->getEntityManager()->createNativeQuery(
+            'SELECT r.id, r.type, r.time, r.value
+                    FROM reading r
+                    JOIN (
+                        SELECT type, max(time) maxTime
+                            from reading
+                            group by type
+                        ) maxReading 
+                    on r.type = maxReading.type
+                    where r.time = maxReading.maxTime',
+            $rsm
+        );
+
+        return $query->getResult();
     }
 
     // /**

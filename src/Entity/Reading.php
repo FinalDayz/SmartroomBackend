@@ -54,8 +54,8 @@ class Reading
 
     public function setType(string $type): self
     {
-        if($type != null && in_array($type, self::VALID_TYPES))
-            throw new \InvalidArgumentException("Invalid type");
+        if($type != null && !in_array($type, self::VALID_TYPES))
+            throw new \InvalidArgumentException("Invalid type '".$type."'");
         $this->type = $type;
 
         return $this;

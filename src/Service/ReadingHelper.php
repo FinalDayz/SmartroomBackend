@@ -3,26 +3,25 @@
 namespace App\Service;
 
 use App\Entity\Reading;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\HttpKernel\Log\Logger;
+use Psr\Log\LoggerInterface;
 
 class ReadingHelper
 {
     /**
-     * @var Container
+     * @var ObjectManager
      */
-    private $container;
+    private $entityManager;
     /**
      * @var Logger
      */
     private $logger;
 
-    public function __construct(Container $container, Logger $logger)
+    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
-        $this->container = $container;
+        $this->entityManager = $entityManager;
         $this->logger = $logger;
     }
 
@@ -32,19 +31,17 @@ class ReadingHelper
      */
     public function addReadings($readings)
     {
-        /** @var ObjectManager $objectManager */
-        $objectManager = $this->container->get('doctrine')->getManager();
         foreach ((array) $readings as $reading) {
-            $objectManager->persist($reading);
+            $this->entityManager->persist($reading);
         }
-        $objectManager->flush();
+        $this->entityManager->flush();
     }
 
     /**
      * @param array $rawReading
      * @return Reading[]
      */
-    public function parseReading(array $rawReading): array
+    public function readingFromRaw(array $rawReading): array
     {
         $readings = [];
 
@@ -54,7 +51,7 @@ class ReadingHelper
                 if (is_numeric($value)) {
                     array_push(
                         $readings,
-                        $this->newReading($availableType, $rawReading['temperature'])
+                        $this->newReading($availableType, $rawReading[$availableType])
                     );
                 } else {
                     $this->logger->notice("Invalid value while parsing reading (not numeric).".
@@ -64,6 +61,20 @@ class ReadingHelper
         }
 
         return $readings;
+    }
+
+    /**
+     * @param Reading[] $readings
+     * @return array
+     */
+    public function rawFromReadings(array $readings): array {
+        $rawReadings = [];
+
+        foreach($readings as $reading) {
+            $rawReadings[$reading->getType()] = $reading->getValue();
+        }
+
+        return $rawReadings;
     }
 
     /**
