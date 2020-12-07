@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\RealTimeData;
+use App\Service\ReadingHelper;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,24 +15,10 @@ class RealTimeDataController extends AbstractController
 {
     /**
      * @Route("/readings", name="readings")
-     * @param RealTimeData $realTimeData
+     * @param ReadingHelper $realTimeData
      * @return JsonResponse
-     * @throws InvalidArgumentException
      */
-    public function readingData(RealTimeData $realTimeData): JsonResponse {
-
-        return new JsonResponse(
-            $realTimeData->getReadingData()
-        );
-    }
-
-    /**
-     * @Route("/actions", name="actions")
-     * @param RealTimeData $realTimeData
-     * @return JsonResponse
-     * @throws InvalidArgumentException
-     */
-    public function getAction(RealTimeData $realTimeData): JsonResponse {
+    public function readingData(ReadingHelper $realTimeData): JsonResponse {
 
         return new JsonResponse(
             $realTimeData->getReadingData()

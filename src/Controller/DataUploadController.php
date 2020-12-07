@@ -3,9 +3,10 @@
 namespace App\Controller;
 
 use App\Service\ReadingHelper;
-use App\Service\RealTimeData;
 use Exception;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,18 +30,21 @@ class DataUploadController extends AbstractController
     /**
      * @Route("/readings", name="readings", methods={"POST"})
      * @param Request $request
-     * @param RealTimeData $realTimeData
+     * @param ReadingHelper $realTimeData
      * @return Response
      * @throws Exception
      */
-    public function readings(Request $request, RealTimeData $realTimeData): Response {
+    public function readings(Request $request, ReadingHelper $realTimeData): Response {
         $rawReading = json_decode($request->getContent(), true);
 
         $realTimeData->setReadingData($rawReading);
 
-        $readingArr = $this->readingHelper->readingFromRaw($rawReading);
-        $this->readingHelper->addReadings($readingArr);
+        $this->readingHelper->addReadings(
+            $this->readingHelper->fromArray($rawReading)
+        );
 
-        return $this->redirectToRoute("realtime_readings");
+        return new JsonResponse(
+            $realTimeData->getReadingData()
+        );
     }
 }

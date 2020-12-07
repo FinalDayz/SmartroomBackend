@@ -14,6 +14,12 @@ class Reading
 {
 
     const VALID_TYPES = ['temperature', 'humidity', 'heater', 'connection'];
+    const DB_UPLOAD_THRESHOLD = [
+        'temperature' => 0.3,
+        'humidity' => 2,
+        'heater' => 1,
+        'connection' => 1
+    ];
 
     /**
      * @ORM\Id
