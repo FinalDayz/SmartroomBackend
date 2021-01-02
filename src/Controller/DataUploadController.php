@@ -35,6 +35,8 @@ class DataUploadController extends AbstractController
      * @throws Exception
      */
     public function readings(Request $request, ReadingHelper $realTimeData): Response {
+        $realTimeData->updateLastConnection();
+
         $rawReading = json_decode($request->getContent(), true);
 
         $realTimeData->setReadingData($rawReading);

@@ -3,8 +3,11 @@
 namespace App\Service;
 
 use App\Entity\Reading;
+use App\Repository\ReadingRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectManager;
+use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -14,6 +17,8 @@ class ReadingHelper
 
     private const CACHE_KEY_READINGS = 'cache.realtime_readings';
     private const CACHE_KEY_LAST_INSERT = 'cache.last_insert';
+    private const CACHE_KEY_TIME_LAST_CONNECTION = 'cache.time_last_connection';
+    private const CACHE_KEY_TIME_LAST_CONNECTION_VALUE = 'cache.time_last_connection_value';
 
     /**
      * @var ObjectManager
@@ -50,14 +55,66 @@ class ReadingHelper
      */
     public function init() {
         if(!$this->cache->hasItem(self::CACHE_KEY_READINGS)) {
+            /** @var ReadingRepository $repository */
+            $repository = $this->entityManager->getRepository(Reading::class);
             $dbReadingsArr = $this->toArray(
-                $this->entityManager->getRepository(Reading::class)
-                    ->getLastReadingEachType()
+                $repository->getLastReadingEachType()
             );
 
             $this->setData(self::CACHE_KEY_READINGS, $dbReadingsArr);
             $this->setData(self::CACHE_KEY_LAST_INSERT, $dbReadingsArr);
+
+            $latestReading = $repository->lastInsertTime();
+            $this->setData(self::CACHE_KEY_TIME_LAST_CONNECTION,
+                $latestReading != null ? $latestReading->getTime() : null
+            );
+            $this->setData(self::CACHE_KEY_TIME_LAST_CONNECTION_VALUE, $this->connectionIsDown());
         }
+    }
+
+    /**
+     * return true if `updateLastConnection` has not been called at least for 60 seconds
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function connectionIsDown() {
+        /** @var DateTimeImmutable|null $lastConnectionTime */
+        $lastConnectionTime = $this->getData(self::CACHE_KEY_TIME_LAST_CONNECTION);
+        if($lastConnectionTime != null) {
+            $diffInSeconds = $lastConnectionTime->getTimestamp() - (new DateTimeImmutable())->getTimestamp();
+            return $diffInSeconds > 60;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getLastConnectionValue() {
+        return $this->getData(self::CACHE_KEY_TIME_LAST_CONNECTION_VALUE);
+    }
+
+    /**
+     * @param bool $isUp
+     */
+    public function connectionChanged(bool $isUp) {
+        $connectionReading = new Reading();
+        $connectionReading->setType('connection');
+        $connectionReading->setValue($isUp ? 1 : 0);
+        $this->entityManager->persist($connectionReading);
+        $this->entityManager->flush();
+    }
+
+    public function updateLastConnection() {
+        if(!$this->getLastConnectionValue()) {
+            $this->setData(self::CACHE_KEY_TIME_LAST_CONNECTION_VALUE, true);
+            $this->connectionChanged(true);
+        }
+        $this->setData(self::CACHE_KEY_TIME_LAST_CONNECTION,
+            new DateTimeImmutable()
+        );
     }
 
     /**
@@ -76,7 +133,7 @@ class ReadingHelper
             ) {
                 $lastDBValues[$readingType] = $reading->getValue();
                 $dbChanges = true;
-//                $this->entityManager->persist($reading);
+                $this->entityManager->persist($reading);
             }
         }
         if($dbChanges) {

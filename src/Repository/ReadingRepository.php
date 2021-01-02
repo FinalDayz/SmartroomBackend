@@ -22,9 +22,9 @@ class ReadingRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return bool
+     * @return Reading[]
      */
-    public function getLastReadingEachType() {
+    public function getLastReadingEachType(): array {
 
         $rsm = new ResultSetMapping();
         $rsm->addEntityResult('App\Entity\Reading', 'r');
@@ -47,6 +47,10 @@ class ReadingRepository extends ServiceEntityRepository
         );
 
         return $query->getResult();
+    }
+
+    public function lastInsertTime(): ?Reading {
+        return $this->findOneBy([], ["time" => "desc"]);
     }
 
     // /**
