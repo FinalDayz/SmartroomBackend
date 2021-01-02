@@ -19,6 +19,14 @@ class LegacySupportController extends AbstractController
         return new JsonResponse($this->statusData($realTimeData));
     }
 
+    /**
+     * @Route("/", name="legacy_index")
+     */
+    public function index(ReadingHelper $realTimeData): Response
+    {
+        return new JsonResponse($this->statusData($realTimeData));
+    }
+
     private function statusData(ReadingHelper $realTimeData): array {
         return array_merge(
             [
