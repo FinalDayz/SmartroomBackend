@@ -4,7 +4,9 @@ namespace App\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -44,10 +46,29 @@ class AuthenticationSubscriber implements EventSubscriberInterface
         return false;
     }
 
+    public function responseController(ResponseEvent $event)
+    {
+        if ($event->getRequest()->getMethod() === 'OPTIONS') {
+            $event->setResponse(
+                new Response('', 204, [
+                    'Access-Control-Allow-Origin' => '*',
+                    'Access-Control-Allow-Credentials' => 'true',
+                    'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers' => 'DNT, X-User-Token, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type',
+                    'Access-Control-Max-Age' => 1728000,
+                    'Content-Type' => 'text/plain charset=UTF-8',
+                    'Content-Length' => 0
+                ])
+            );
+            return;
+        }
+    }
+
     public static function getSubscribedEvents()
     {
         return [
             KernelEvents::CONTROLLER => 'onKernelController',
+            KernelEvents::RESPONSE => 'responseController'
         ];
     }
 }
