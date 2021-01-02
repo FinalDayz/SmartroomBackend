@@ -48,6 +48,7 @@ class AuthenticationSubscriber implements EventSubscriberInterface
 
     public function responseController(ResponseEvent $event)
     {
+        $event->getResponse()->headers->set('Access-Control-Allow-Origin', '*');
         if ($event->getRequest()->getMethod() === 'OPTIONS') {
             $event->setResponse(
                 new Response('', 204, [
