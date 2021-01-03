@@ -11,6 +11,7 @@ use Exception;
 use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class ReadingHelper
 {
@@ -40,12 +41,13 @@ class ReadingHelper
      * @throws InvalidArgumentException
      */
     public function __construct(
+        ContainerBagInterface $params,
         EntityManagerInterface $entityManager,
         LoggerInterface $logger
     ) {
         $this->entityManager = $entityManager;
         $this->logger = $logger;
-        $this->cache = new FilesystemAdapter();
+        $this->cache = new FilesystemAdapter("", 0, $params->get('kernel.cache_dir'));
 
         $this->init();
     }
