@@ -124,7 +124,6 @@ class ReadingHelper
      */
     public function addReadings($readings)
     {
-        $this->logger->error("Add readings", $readings);
         $lastDBValues = $this->getData(self::CACHE_KEY_LAST_INSERT);
         $dbChanges = false;
         foreach ((array) $readings as $reading) {
@@ -232,6 +231,7 @@ class ReadingHelper
      */
     public function setReadingData(array $data)
     {
+        $this->logger->error("set readings", $data);
         $oldReadingArr = $this->getReadingData();
         $curReading = $this->fromArray($data);
         $newReading = array_merge(
