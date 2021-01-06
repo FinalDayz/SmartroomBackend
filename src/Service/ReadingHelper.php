@@ -124,6 +124,7 @@ class ReadingHelper
      */
     public function addReadings($readings)
     {
+        $this->logger->debug("Add readings", $readings);
         $lastDBValues = $this->getData(self::CACHE_KEY_LAST_INSERT);
         $dbChanges = false;
         foreach ((array) $readings as $reading) {
