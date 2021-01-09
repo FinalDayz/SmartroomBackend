@@ -19,7 +19,7 @@ class Reading
         'humidity' => 2,
         'heater' => 1,
         'connection' => 1,
-        'pressure' => 1,
+        'pressure' => 2,
         'gas' => 6,
     ];
 
