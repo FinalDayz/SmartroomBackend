@@ -225,8 +225,8 @@ class ReadingHelper
     {
         $allData = $this->getData(self::CACHE_KEY_READINGS);
         $lastConnection = $this->getData(self::CACHE_KEY_TIME_LAST_CONNECTION);
-        if($lastConnection) {
-            $allData['lastConnection'] = $lastConnection;
+        if($lastConnection instanceof DateTimeImmutable) {
+            $allData['lastConnection'] = $lastConnection->format("d-m-Y H:i:s");
         }
         return $allData;
     }
