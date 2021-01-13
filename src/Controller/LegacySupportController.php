@@ -37,7 +37,7 @@ class LegacySupportController extends AbstractController
                 ],
                 'buzzer' => [],
             ],
-            $realTimeData->getReadingData()
+            $realTimeData->getAllReadingData()
         );
     }
 
@@ -76,7 +76,7 @@ class LegacySupportController extends AbstractController
         );
 
         return new JsonResponse(
-            $realTimeData->getReadingData()
+            $realTimeData->getAllReadingData()
         );
     }
 

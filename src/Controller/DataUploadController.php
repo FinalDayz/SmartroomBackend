@@ -46,7 +46,7 @@ class DataUploadController extends AbstractController
         );
 
         return new JsonResponse(
-            $realTimeData->getReadingData()
+            $realTimeData->getAllReadingData()
         );
     }
 }

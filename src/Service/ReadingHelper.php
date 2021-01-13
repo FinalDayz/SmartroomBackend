@@ -19,14 +19,14 @@ class ReadingHelper
     private const CACHE_KEY_READINGS = 'cache.realtime_readings';
     private const CACHE_KEY_LAST_INSERT = 'cache.last_insert';
     private const CACHE_KEY_TIME_LAST_CONNECTION = 'cache.time_last_connection';
-    private const CACHE_KEY_TIME_LAST_CONNECTION_VALUE = 'cache.time_last_connection_value';
+    private const CACHE_KEY_HAS_RECENT_CONNECTION = 'cache.time_last_connection_value';
 
     /**
      * @var ObjectManager
      */
     private $entityManager;
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
     /**
@@ -36,6 +36,7 @@ class ReadingHelper
 
     /**
      * ReadingHelper constructor.
+     * @param ContainerBagInterface $params
      * @param EntityManagerInterface $entityManager
      * @param LoggerInterface $logger
      * @throws InvalidArgumentException
@@ -70,7 +71,7 @@ class ReadingHelper
             $this->setData(self::CACHE_KEY_TIME_LAST_CONNECTION,
                 $latestReading != null ? $latestReading->getTime() : null
             );
-            $this->setData(self::CACHE_KEY_TIME_LAST_CONNECTION_VALUE, $this->connectionIsDown());
+            $this->setData(self::CACHE_KEY_HAS_RECENT_CONNECTION, $this->connectionIsDown());
         }
     }
 
@@ -95,7 +96,7 @@ class ReadingHelper
      * @return bool|null
      */
     public function getLastConnectionValue() {
-        return $this->getData(self::CACHE_KEY_TIME_LAST_CONNECTION_VALUE);
+        return $this->getData(self::CACHE_KEY_HAS_RECENT_CONNECTION);
     }
 
     /**
@@ -111,7 +112,7 @@ class ReadingHelper
 
     public function updateLastConnection() {
         if(!$this->getLastConnectionValue()) {
-            $this->setData(self::CACHE_KEY_TIME_LAST_CONNECTION_VALUE, true);
+            $this->setData(self::CACHE_KEY_HAS_RECENT_CONNECTION, true);
             $this->connectionChanged(true);
         }
         $this->setData(self::CACHE_KEY_TIME_LAST_CONNECTION,
@@ -220,10 +221,14 @@ class ReadingHelper
     /**
      * @return array
      */
-    public function getReadingData(): array
+    public function getAllReadingData(): array
     {
-//        $this->cache->delete(self::CACHE_KEY_READINGS);
-        return $this->getData(self::CACHE_KEY_READINGS);
+        $allData = $this->getData(self::CACHE_KEY_READINGS);
+        $lastConnection = $this->getData(self::CACHE_KEY_TIME_LAST_CONNECTION);
+        if($lastConnection) {
+            $allData['lastConnection'] = $lastConnection;
+        }
+        return $allData;
     }
 
     /**
@@ -232,7 +237,7 @@ class ReadingHelper
     public function setReadingData(array $data)
     {
         $this->logger->error("set readings", $data);
-        $oldReadingArr = $this->getReadingData();
+        $oldReadingArr = $this->getAllReadingData();
         $curReading = $this->fromArray($data);
         $newReading = array_merge(
             $this->fromArray($oldReadingArr),
@@ -245,7 +250,7 @@ class ReadingHelper
     /**
      * @param string $key
      * @param array $notFoundValue
-     * @return array
+     * @return array|null|bool|string
      */
     private function getData(string $key, $notFoundValue = null)
     {

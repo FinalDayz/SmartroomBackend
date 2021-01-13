@@ -21,7 +21,7 @@ class RealTimeDataController extends AbstractController
     public function readingData(ReadingHelper $realTimeData): JsonResponse {
 
         return new JsonResponse(
-            $realTimeData->getReadingData()
+            $realTimeData->getAllReadingData()
         );
     }
 }
