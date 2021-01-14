@@ -13,7 +13,7 @@ use http\Exception\InvalidArgumentException;
 class Reading
 {
 
-    const VALID_TYPES = ['temperature', 'humidity', 'heater', 'connection', 'pressure', 'gas'];
+    const VALID_TYPES = ['temperature', 'humidity', 'heater', 'connection', 'pressure', 'gas', 'turnOffPi'];
     const DB_UPLOAD_THRESHOLD = [
         'temperature' => 0.3,
         'humidity' => 2,
@@ -21,6 +21,7 @@ class Reading
         'connection' => 1,
         'pressure' => 2,
         'gas' => 6,
+        'turnOffPi' => 1,
     ];
 
     /**
