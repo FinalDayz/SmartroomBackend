@@ -52,6 +52,7 @@ class AutomationController extends AbstractController
 
     /**
      * @Route("/modify/{id}", name="modify")
+     * @param int $id
      * @param Request $request
      * @return Response
      */
