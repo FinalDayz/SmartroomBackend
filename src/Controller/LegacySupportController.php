@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\ActionHelper;
 use App\Service\ReadingHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,7 +45,7 @@ class LegacySupportController extends AbstractController
     /**
      * @Route("/set/heater", name="legacy_set_heater")
      */
-    public function set_heater(Request $request, ReadingHelper $realTimeData): Response
+    public function set_heater(Request $request, ReadingHelper $realTimeData, ActionHelper $actionHelper): Response
     {
         $body = json_decode($request->getContent(), true);
         $heaterOn = $body['heater'] == 'true';
@@ -58,13 +59,17 @@ class LegacySupportController extends AbstractController
             $realTimeData->fromArray($manualArr)
         );
 
+        if($realTimeData->isInsertedInDB()) {
+            $actionHelper->handleAllAutomations();
+        }
+
         return new JsonResponse($this->statusData($realTimeData));
     }
 
     /**
      * @Route("/reading", name="legacy_reading")
      */
-    public function reading(Request $request, ReadingHelper $realTimeData) {
+    public function reading(Request $request, ReadingHelper $realTimeData, ActionHelper $actionHelper) {
         $realTimeData->updateLastConnection();
 
         $rawReading = json_decode($request->getContent(), true);
@@ -74,6 +79,10 @@ class LegacySupportController extends AbstractController
         $realTimeData->addReadings(
             $realTimeData->fromArray($rawReading)
         );
+
+        if($realTimeData->isInsertedInDB()) {
+            $actionHelper->handleAllAutomations();
+        }
 
         return new JsonResponse(
             $realTimeData->getAllReadingData()

@@ -2,9 +2,8 @@
 
 namespace App\Controller;
 
+use App\Service\ActionHelper;
 use App\Service\ReadingHelper;
-use Exception;
-use Psr\Cache\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,10 +30,10 @@ class DataUploadController extends AbstractController
      * @Route("/readings", name="readings", methods={"POST"})
      * @param Request $request
      * @param ReadingHelper $realTimeData
+     * @param ActionHelper $actionHelper
      * @return Response
-     * @throws Exception
      */
-    public function readings(Request $request, ReadingHelper $realTimeData): Response {
+    public function readings(Request $request, ReadingHelper $realTimeData, ActionHelper $actionHelper): Response {
         $realTimeData->updateLastConnection();
 
         $rawReading = json_decode($request->getContent(), true);
@@ -44,6 +43,10 @@ class DataUploadController extends AbstractController
         $this->readingHelper->addReadings(
             $this->readingHelper->fromArray($rawReading)
         );
+
+        if($realTimeData->isInsertedInDB()) {
+            $actionHelper->handleAllAutomations();
+        }
 
         return new JsonResponse(
             $realTimeData->getAllReadingData()

@@ -15,11 +15,13 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class ReadingHelper
 {
-
+    // Values are the most up to date
     private const CACHE_KEY_READINGS = 'cache.realtime_readings';
+    // Values are always in sync with the DB
     private const CACHE_KEY_LAST_INSERT = 'cache.last_insert';
     private const CACHE_KEY_TIME_LAST_CONNECTION = 'cache.time_last_connection';
     private const CACHE_KEY_HAS_RECENT_CONNECTION = 'cache.time_last_connection_value';
+    private $insertedInDB = false;
 
     /**
      * @var ObjectManager
@@ -51,6 +53,14 @@ class ReadingHelper
         $this->cache = new FilesystemAdapter("", 0, $params->get('kernel.cache_dir'));
 
         $this->init();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInsertedInDB(): bool
+    {
+        return $this->insertedInDB;
     }
 
     /**
@@ -108,6 +118,7 @@ class ReadingHelper
         $connectionReading->setValue($isUp ? 1 : 0);
         $this->entityManager->persist($connectionReading);
         $this->entityManager->flush();
+        $this->insertedInDB = true;
     }
 
     public function updateLastConnection() {
@@ -122,8 +133,9 @@ class ReadingHelper
 
     /**
      * @param Reading[] $readings
+     * @param bool $silent
      */
-    public function addReadings($readings)
+    public function addReadings($readings, $silent=false)
     {
         $lastDBValues = $this->getData(self::CACHE_KEY_LAST_INSERT);
         $dbChanges = false;
@@ -142,8 +154,10 @@ class ReadingHelper
         if($dbChanges) {
             $this->setData(self::CACHE_KEY_LAST_INSERT, $lastDBValues);
             $this->entityManager->flush();
+            $this->insertedInDB = true;
         }
     }
+
 
     /**
      * @param array $rawReading
@@ -162,7 +176,7 @@ class ReadingHelper
                         $this->newReading($availableType, $rawReading[$availableType])
                     );
                 } else {
-                    $this->logger->notice("Invalid value while parsing reading (not numeric).".
+                    $this->logger->warning("Invalid value while parsing reading (not numeric).".
                         "Value: '" . $value . "', reading type: '" . $availableType . "'");
                 }
             }
@@ -236,7 +250,6 @@ class ReadingHelper
      */
     public function setReadingData(array $data)
     {
-        $this->logger->error("set readings", $data);
         $oldReadingArr = $this->getAllReadingData();
         $curReading = $this->fromArray($data);
         $newReading = array_merge(
