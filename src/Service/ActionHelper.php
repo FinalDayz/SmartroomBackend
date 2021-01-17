@@ -86,7 +86,6 @@ class ActionHelper
 
     private function executeActions($actions) {
         foreach($actions as $action) {
-            var_dump($action);
             $type = $action['type'];
             $data = $action['data'];
             switch ($type) {
@@ -108,7 +107,6 @@ class ActionHelper
         $this->readingHelper->setReadingData(
             $this->readingHelper->toArray([$heaterReading])
         );
-        var_dump($heaterReading);
     }
 
     private function sendNotification($data) {
@@ -153,8 +151,7 @@ class ActionHelper
 
             $inputValue = $this->lastReadings[$input];
 
-            var_dump("Check ".$inputValue.$condition.$value);
-            if($this->conditionIsTrue($inputValue, $condition, $value)) {
+             if($this->conditionIsTrue($inputValue, $condition, $value)) {
 
                 // If is true at this point
                 // Check if the AND value(s) are also true (if there are any)
