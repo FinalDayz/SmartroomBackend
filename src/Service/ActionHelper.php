@@ -71,12 +71,13 @@ class ActionHelper
     public function handleAutomation(Automation $automation) {
         $this->fetchReadings();
 
+
         if($automation->getEnabled() && $this->ifArrIsTrue(
-                json_decode($automation->getIfJson())
+                json_decode($automation->getIfJson(), true)
             )) {
 
             $this->executeActions(
-                json_decode($automation->getActionJson())
+                json_decode($automation->getActionJson(), true)
             );
         }
     }
@@ -133,6 +134,9 @@ class ActionHelper
     }
 
     private function ifArrIsTrue($ifsObj): bool {
+        if(count($ifsObj) === 0) {
+            return true;
+        }
         foreach($ifsObj as $if) {
             $input = $if['input'];
             $condition = $if['condition'];
@@ -142,7 +146,9 @@ class ActionHelper
 
             $inputValue = $this->lastReadings[$input];
 
+
             if($this->conditionIsTrue($inputValue, $condition, $value)) {
+
                 // If is true at this point
                 // Check if the AND value(s) are also true (if there are any)
                 if($hasAnd) {
