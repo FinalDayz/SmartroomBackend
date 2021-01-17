@@ -28,6 +28,10 @@ class AuthenticationSubscriber implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
+        if($request->isMethod("OPTIONS")) {
+            $event->stopPropagation();
+        }
+
         $key = $event->getRequest()->headers->get('Authorization');
         var_dump($request->getMethod());
         if (!in_array($key, $keys) && !$request->isMethod("OPTIONS")) {
