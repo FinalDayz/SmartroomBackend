@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class AuthenticationSubscriber implements EventSubscriberInterface
@@ -21,13 +22,16 @@ class AuthenticationSubscriber implements EventSubscriberInterface
         if (is_array($controller)) {
             $controller = $controller[0];
         }
+        if (HttpKernel::MASTER_REQUEST != $event->getRequestType()) {
+            return;
+        }
 
         $request = $event->getRequest();
 
         $key = $event->getRequest()->headers->get('Authorization');
+        var_dump($request->getMethod());
         if (!in_array($key, $keys) && !$request->isMethod("OPTIONS")) {
             if(!$this->check_legacy($request, $keys)) {
-                var_dump($request->getRealMethod());
                 throw new AccessDeniedHttpException('This action needs a valid token! You gave: "'.$key.'"');
             }
         }
@@ -49,21 +53,23 @@ class AuthenticationSubscriber implements EventSubscriberInterface
 
     public function responseController(ResponseEvent $event)
     {
-        $event->getResponse()->headers->set('Access-Control-Allow-Origin', '*');
-        if ($event->getRequest()->getMethod() === 'OPTIONS') {
-            $event->setResponse(
-                new Response('', 204, [
-                    'Access-Control-Allow-Origin' => '*',
-                    'Access-Control-Allow-Credentials' => 'true',
-                    'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                    'Access-Control-Allow-Headers' => 'DNT, X-User-Token, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type',
-                    'Access-Control-Max-Age' => 1728000,
-                    'Content-Type' => 'text/plain charset=UTF-8',
-                    'Content-Length' => 0
-                ])
-            );
-            return;
-        }
+//        var_dump("Henlo");
+//        var_dump($event->getRequest()->getMethod());
+//        $event->getResponse()->headers->set('Access-Control-Allow-Origin', '*');
+//        if ($event->getRequest()->getMethod() === 'OPTIONS') {
+//            $event->setResponse(
+//                new Response('', 204, [
+//                    'Access-Control-Allow-Origin' => '*',
+//                    'Access-Control-Allow-Credentials' => 'true',
+//                    'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+//                    'Access-Control-Allow-Headers' => 'DNT, X-User-Token, Keep-Alive, User-Agent, X-Requested-With, If-Modified-Since, Cache-Control, Content-Type',
+//                    'Access-Control-Max-Age' => 1728000,
+//                    'Content-Type' => 'text/plain charset=UTF-8',
+//                    'Content-Length' => 0
+//                ])
+//            );
+//            return;
+//        }
     }
 
     public static function getSubscribedEvents()
