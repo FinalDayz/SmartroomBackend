@@ -34,7 +34,7 @@ class AuthenticationSubscriber implements EventSubscriberInterface
         }
 
         $key = $event->getRequest()->headers->get('Authorization');
-        var_dump($request->getMethod());
+
         if (!in_array($key, $keys) && !$request->isMethod("OPTIONS")) {
             if(!$this->check_legacy($request, $keys)) {
                 throw new AccessDeniedHttpException('This action needs a valid token! You gave: "'.$key.'"');
@@ -56,7 +56,7 @@ class AuthenticationSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function onRequest(RequestEvent $event) {
+    public function onRequest(RequestEvent $event) {
         if (HttpKernel::MASTER_REQUEST != $event->getRequestType()) {
             return;
         }
