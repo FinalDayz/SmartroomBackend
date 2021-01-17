@@ -122,7 +122,7 @@ class ActionHelper
                 "POST",
                 $url,
                 [
-                    'json' => json_encode($requestBody)
+                    'json' => $requestBody
                 ]
             );
         } catch (TransportExceptionInterface $e) {
@@ -133,7 +133,8 @@ class ActionHelper
 
     private function applyStrKeywords($str) {
         foreach (Reading::VALID_TYPES as $type) {
-            $str = str_replace("{".$type."}", $this->lastReadings[$type], $str);
+            if(isset($this->lastReadings[$type]))
+                $str = str_replace("{".$type."}", $this->lastReadings[$type], $str);
         }
         return $str;
     }
