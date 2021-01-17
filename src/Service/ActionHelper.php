@@ -71,6 +71,8 @@ class ActionHelper
     public function handleAutomation(Automation $automation) {
         $this->fetchReadings();
 
+        $this->logger->warning("Handle automation: " . $automation->getName(). " enabled?" .
+            $automation->getEnabled() ? 'true' : 'false');
 
         if($automation->getEnabled() && $this->ifArrIsTrue(
                 json_decode($automation->getIfJson(), true)
@@ -84,6 +86,8 @@ class ActionHelper
 
     private function executeActions($actions) {
         foreach($actions as $action) {
+            $this->logger->warning("Execute");
+            $this->logger->warning($action);
             $type = $action['type'];
             $data = $action['data'];
             switch ($type) {
@@ -146,7 +150,7 @@ class ActionHelper
 
             $inputValue = $this->lastReadings[$input];
 
-
+            var_dump("Check ".$inputValue.$condition.$value);
             if($this->conditionIsTrue($inputValue, $condition, $value)) {
 
                 // If is true at this point
