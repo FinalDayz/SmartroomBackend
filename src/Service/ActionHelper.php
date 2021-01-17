@@ -86,8 +86,7 @@ class ActionHelper
 
     private function executeActions($actions) {
         foreach($actions as $action) {
-            $this->logger->warning("Execute");
-            $this->logger->warning($action);
+            var_dump($action);
             $type = $action['type'];
             $data = $action['data'];
             switch ($type) {
@@ -106,6 +105,7 @@ class ActionHelper
         $heaterReading->setType("heater");
         $heaterReading->setValue($data['isOn']);
         $this->readingHelper->addReadings([$heaterReading]);
+        var_dump($heaterReading);
     }
 
     private function sendNotification($data) {
