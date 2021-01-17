@@ -105,6 +105,9 @@ class ActionHelper
         $heaterReading->setType("heater");
         $heaterReading->setValue($data['isOn']);
         $this->readingHelper->addReadings([$heaterReading]);
+        $this->readingHelper->setReadingData(
+            $this->readingHelper->toArray([$heaterReading])
+        );
         var_dump($heaterReading);
     }
 
