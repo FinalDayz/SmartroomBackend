@@ -106,7 +106,7 @@ class AutomationController extends AbstractController
     private function automationToJson($automation) {
         $automationObj = [];
         $automationObj['name'] = $automation->name;
-        $automationObj['enables'] = $automation->enabled;
+        $automationObj['enabled'] = $automation->enabled;
         $automationObj['ifs'] = $automation->ifJson;
         $automationObj['action'] = $automation->actionJson;
 
