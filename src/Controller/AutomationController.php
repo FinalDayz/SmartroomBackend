@@ -79,7 +79,16 @@ class AutomationController extends AbstractController
         $automations = $this->repository->findAll();
         $automations = $serializer->serialize($automations, 'json');
 
-        return new Response($automations, 200, ['content-type' => 'text/html']);
+        $automationsObj = json_decode($automations);
+        $automationJsonArr = [];
+        foreach ($automationsObj as $automationObj) {
+            array_push(
+                $automationJsonArr,
+                $this->automationToJson($automationObj)
+            );
+        }
+
+        return new Response(json_encode($automationJsonArr), 200, ['content-type' => 'text/html']);
     }
 
     /**
@@ -94,6 +103,15 @@ class AutomationController extends AbstractController
         return new Response();
     }
 
+    private function automationToJson($automation) {
+        $automationObj = [];
+        $automationObj['name'] = $automation->name;
+        $automationObj['enables'] = $automation->enabled;
+        $automationObj['ifs'] = $automation->ifJson;
+        $automationObj['action'] = $automation->actionJson;
+
+        return $automationObj;
+    }
 
     private function jsonToAutomation($jsonData, $automation = null) {
         if($automation === null) {
