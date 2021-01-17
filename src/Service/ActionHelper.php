@@ -71,7 +71,7 @@ class ActionHelper
     public function handleAutomation(Automation $automation) {
         $this->fetchReadings();
 
-        if($this->ifArrIsTrue($automation->getIfJson())) {
+        if($automation->getEnabled() && $this->ifArrIsTrue($automation->getIfJson())) {
             $this->executeActions($automation->getActionJson());
         }
     }
