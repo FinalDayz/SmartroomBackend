@@ -71,8 +71,6 @@ class ActionHelper
     public function handleAutomation(Automation $automation) {
         $this->fetchReadings();
 
-        $this->logger->warning("Handle automation: " . $automation->getName(). " enabled?" .
-            $automation->getEnabled() ? 'true' : 'false');
 
         if($automation->getEnabled() && $this->ifArrIsTrue(
                 json_decode($automation->getIfJson(), true)
