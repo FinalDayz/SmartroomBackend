@@ -109,6 +109,7 @@ class AutomationController extends AbstractController
         $automationObj['enabled'] = $automation->enabled;
         $automationObj['ifs'] = $automation->ifJson;
         $automationObj['action'] = $automation->actionJson;
+        $automationObj['id'] = $automation->id;
 
         return $automationObj;
     }
