@@ -142,6 +142,8 @@ class ActionHelper
                 // Check if the AND value(s) are also true (if there are any)
                 if($hasAnd) {
                     return $this->ifArrIsTrue($if['and']);
+                } else {
+                    return true;
                 }
             }
         }
