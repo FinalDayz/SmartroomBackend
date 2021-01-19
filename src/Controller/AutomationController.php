@@ -6,6 +6,7 @@ use App\Entity\Automation;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -47,7 +48,9 @@ class AutomationController extends AbstractController
         $this->em->persist($automation);
         $this->em->flush();
 
-        return new Response();
+        return new JsonResponse(
+            json_encode($automation)
+        );
     }
 
     /**
@@ -66,7 +69,9 @@ class AutomationController extends AbstractController
         $this->em->persist($automation);
         $this->em->flush();
 
-        return new Response();
+        return new JsonResponse(
+            json_encode($automation)
+        );
     }
 
     /**
