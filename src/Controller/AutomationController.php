@@ -37,9 +37,10 @@ class AutomationController extends AbstractController
     /**
      * @Route("/add", name="add")
      * @param Request $request
+     * @param SerializerInterface $serializer
      * @return Response
      */
-    public function addAutomation(Request $request) {
+    public function addAutomation(Request $request, SerializerInterface $serializer) {
         $this->init();
         $automationData = json_decode($request->getContent(), true);
 
@@ -49,7 +50,7 @@ class AutomationController extends AbstractController
         $this->em->flush();
 
         return new JsonResponse(
-            json_encode($automation)
+            $serializer->serialize($automation, 'json')
         );
     }
 
@@ -57,9 +58,10 @@ class AutomationController extends AbstractController
      * @Route("/modify/{id}", name="modify")
      * @param int $id
      * @param Request $request
+     * @param SerializerInterface $serializer
      * @return Response
      */
-    public function modifyAutomation(int $id, Request $request) {
+    public function modifyAutomation(int $id, Request $request, SerializerInterface $serializer) {
         $this->init();
         $automation = $this->repository->find($id);
         $automationData = json_decode($request->getContent(), true);
@@ -70,7 +72,7 @@ class AutomationController extends AbstractController
         $this->em->flush();
 
         return new JsonResponse(
-            json_encode($automation)
+            $serializer->serialize($automation, 'json')
         );
     }
 
