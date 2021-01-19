@@ -49,8 +49,9 @@ class AutomationController extends AbstractController
         $this->em->persist($automation);
         $this->em->flush();
 
-        return new JsonResponse(
-            $serializer->serialize($automation, 'json')
+        return new Response(
+            $serializer->serialize($automation, 'json'),
+            200, ['content-type' => 'text/html']
         );
     }
 
@@ -71,8 +72,9 @@ class AutomationController extends AbstractController
         $this->em->persist($automation);
         $this->em->flush();
 
-        return new JsonResponse(
-            $serializer->serialize($automation, 'json')
+        return new Response(
+            $serializer->serialize($automation, 'json'),
+            200, ['content-type' => 'text/html']
         );
     }
 
