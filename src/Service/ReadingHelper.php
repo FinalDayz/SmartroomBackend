@@ -74,6 +74,7 @@ class ReadingHelper
                 $repository->getLastReadingEachType()
             );
 
+
             $this->setData(self::CACHE_KEY_READINGS, $dbReadingsArr);
             $this->setData(self::CACHE_KEY_LAST_INSERT, $dbReadingsArr);
 
