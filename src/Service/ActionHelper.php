@@ -77,7 +77,7 @@ class ActionHelper
             )) {
 
             $this->executeActions(
-                json_decode($automation->getActionJson(), true)
+                json_decode($automation->getActionsJson(), true)
             );
         }
     }

@@ -35,7 +35,7 @@ class Automation
     /**
      * @ORM\Column(type="text")
      */
-    private $actionJson;
+    private $actionsJson;
 
     public function getId(): ?int
     {
@@ -78,14 +78,14 @@ class Automation
         return $this;
     }
 
-    public function getActionJson(): ?string
+    public function getActionsJson(): ?string
     {
-        return $this->actionJson;
+        return $this->actionsJson;
     }
 
-    public function setActionJson(string $actionJson): self
+    public function setActionsJson(string $actionsJson): self
     {
-        $this->actionJson = $actionJson;
+        $this->actionsJson = $actionsJson;
 
         return $this;
     }
