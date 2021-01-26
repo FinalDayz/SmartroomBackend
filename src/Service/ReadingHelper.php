@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
-class ReadingHelper
+class ReadingHelper extends AbstractCacheManager
 {
     // Values are the most up to date
     private const CACHE_KEY_READINGS = 'cache.realtime_readings';
@@ -31,10 +31,7 @@ class ReadingHelper
      * @var LoggerInterface
      */
     private $logger;
-    /**
-     * @var FilesystemAdapter
-     */
-    private $cache;
+
 
     /**
      * ReadingHelper constructor.
@@ -261,34 +258,4 @@ class ReadingHelper
         $this->setData(self::CACHE_KEY_READINGS, $this->toArray($newReading));
     }
 
-    /**
-     * @param string $key
-     * @param array $notFoundValue
-     * @return array|null|bool|string
-     */
-    private function getData(string $key, $notFoundValue = null)
-    {
-        try {
-            if ($this->cache->hasItem($key)) {
-                return $this->cache->getItem($key)->get();
-            }
-        } catch (InvalidArgumentException $ignore) {
-        }
-
-        return $notFoundValue;
-    }
-
-    /**
-     * @param string $key
-     * @param mixed $data
-     */
-    private function setData(string $key, $data)
-    {
-        try {
-            $dataItem = $this->cache->getItem($key);
-            $dataItem->set($data);
-            $this->cache->save($dataItem);
-        } catch (InvalidArgumentException $ignore) {
-        }
-    }
 }

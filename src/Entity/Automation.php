@@ -28,6 +28,11 @@ class Automation
     private $enabled;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $repeatActivation;
+
+    /**
      * @ORM\Column(type="text")
      */
     private $ifJson;
@@ -64,6 +69,16 @@ class Automation
         $this->enabled = $enabled;
 
         return $this;
+    }
+
+    public function getRepeatActivation()
+    {
+        return $this->repeatActivation;
+    }
+
+    public function setRepeatActivation($repeatActivation): void
+    {
+        $this->repeatActivation = $repeatActivation;
     }
 
     public function getIfJson(): ?string

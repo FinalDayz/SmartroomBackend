@@ -4,13 +4,18 @@ namespace App\Service;
 
 use App\Entity\Automation;
 use App\Entity\Reading;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-class ActionHelper
+class ActionHelper extends AbstractCacheManager
 {
+    private const CACHE_KEY_AUTOMATION_STARTED_ACTIVATING_AT = 'cache.time_automation_activated';
+
     /**
      * @var ReadingHelper
      */
@@ -31,15 +36,21 @@ class ActionHelper
      * @var EntityManagerInterface
      */
     private $entityManager;
+    /**
+     * @var array
+     */
+    private $automationActivatedAt;
 
     /**
      * ReadingHelper constructor.
+     * @param ContainerBagInterface $params
      * @param EntityManagerInterface $entityManager
      * @param LoggerInterface $logger
      * @param ReadingHelper $readingHelper
      * @param HttpClientInterface $httpClient
      */
     public function __construct(
+        ContainerBagInterface $params,
         EntityManagerInterface $entityManager,
         LoggerInterface $logger,
         ReadingHelper $readingHelper,
@@ -50,6 +61,14 @@ class ActionHelper
         $this->logger = $logger;
         $this->lastReadings = null;
         $this->httpClient = $httpClient;
+
+        $this->cache = new FilesystemAdapter("", 0, $params->get('kernel.cache_dir'));
+
+        $this->init();
+    }
+
+    private function init() {
+        $this->automationActivatedAt = $this->getData(self::CACHE_KEY_AUTOMATION_STARTED_ACTIVATING_AT, []);
     }
 
     public function fetchReadings() {
@@ -57,7 +76,6 @@ class ActionHelper
             $this->lastReadings = $this->readingHelper->getAllReadingData();
         }
     }
-
 
     public function handleAllAutomations() {
         $repository = $this->entityManager->getRepository(Automation::class);
@@ -67,19 +85,34 @@ class ActionHelper
         }
     }
 
-
     public function handleAutomation(Automation $automation) {
         $this->fetchReadings();
 
+        $isActivated = isset($this->automationActivatedAt[$automation->getId()]);
 
-        if($automation->getEnabled() && $this->ifArrIsTrue(
+        $shouldSkipExecution = $isActivated && !$automation->getRepeatActivation();
+
+        if($automation->getEnabled() &&
+            !$shouldSkipExecution &&
+            $this->ifArrIsTrue(
                 json_decode($automation->getIfJson(), true)
-            )) {
+            )
+        ) {
+
+            $this->automationActivatedAt[$automation->getId()] = new DateTimeImmutable();
+            $this->updateAutomationActivatedAt();
 
             $this->executeActions(
                 json_decode($automation->getActionsJson(), true)
             );
+        } else if($isActivated) {
+            unset($this->automationActivatedAt[$automation->getId()]);
+            $this->updateAutomationActivatedAt();
         }
+    }
+
+    private function updateAutomationActivatedAt() {
+        $this->setData(self::CACHE_KEY_AUTOMATION_STARTED_ACTIVATING_AT, $this->automationActivatedAt);
     }
 
     private function executeActions($actions) {
