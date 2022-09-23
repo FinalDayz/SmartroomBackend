@@ -24,14 +24,15 @@ class ReadingRepository extends ServiceEntityRepository
     /**
      * @return Reading[]
      */
-    public function getLastReadingEachType(): array {
+    public function getLastReadingEachType(): array
+    {
 
         $rsm = new ResultSetMapping();
         $rsm->addEntityResult('App\Entity\Reading', 'r');
-        $rsm->addFieldResult('r','id','id');
-        $rsm->addFieldResult('r','type','type');
-        $rsm->addFieldResult('r','time','time');
-        $rsm->addFieldResult('r','value','value');
+        $rsm->addFieldResult('r', 'id', 'id');
+        $rsm->addFieldResult('r', 'type', 'type');
+        $rsm->addFieldResult('r', 'time', 'time');
+        $rsm->addFieldResult('r', 'value', 'value');
 
         $query = $this->getEntityManager()->createNativeQuery(
             'SELECT r.id, r.type, r.time, r.value
@@ -49,8 +50,26 @@ class ReadingRepository extends ServiceEntityRepository
         return $query->getResult();
     }
 
-    public function lastInsertTime(): ?Reading {
+    public function lastInsertTime(): ?Reading
+    {
         return $this->findOneBy([], ["time" => "desc"]);
+    }
+
+    public function getMaxMinTimeInterval(string $type, int $intervalSec)
+    {
+        $query = $this->getEntityManager()->createQuery(
+            'SELECT time, type, max(value), min(value)
+                    FROM reading
+                    where type = :type
+                    group by (unix_timestamp(time) - (unix_timestamp(time)%(:intervalSec)))
+                    ORDER BY time DESC'
+        );
+        return $query->execute(
+            [
+                "type" => $type,
+                "intervalSec" => $intervalSec
+            ]
+        );
     }
 
     // /**
