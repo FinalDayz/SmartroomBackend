@@ -18,19 +18,21 @@ class GraphDataController extends AbstractController
 {
 
     /**
-     * @Route("/datatype/{type}/{secondsInterval}", name="datatype", methods={"GET"})
+     * @Route("/datatype/{type}/{secondsInterval}/{limit}", name="datatype", methods={"GET"})
+     * @param ReadingRepository $readingRepository
      * @param string $type
      * @param int $secondsInterval
-     * @param ReadingRepository $readingRepository
+     * @param int $limit
      * @return Response
      */
     public function readings(
+        ReadingRepository $readingRepository,
         string            $type,
         int               $secondsInterval,
-        ReadingRepository $readingRepository
+        int               $limit = 60
     ): Response
     {
-        $result = $readingRepository->getMaxMinTimeInterval($type, $secondsInterval);
+        $result = $readingRepository->getMaxMinTimeInterval($type, $secondsInterval, $limit);
 
         return new JsonResponse(
             $result

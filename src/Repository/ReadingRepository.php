@@ -55,22 +55,29 @@ class ReadingRepository extends ServiceEntityRepository
         return $this->findOneBy([], ["time" => "desc"]);
     }
 
-    public function getMaxMinTimeInterval(string $type, int $intervalSec)
+    public function getMaxMinTimeInterval(string $type, int $intervalSec, int $limit = 60)
     {
+        $limit = min($limit, 100);
         $rsm = new ResultSetMapping();
 
+        $rsm->addScalarResult('time', 'timestamp');
+        $rsm->addScalarResult('max(r.value)', 'max');
+        $rsm->addScalarResult('min(r.value)', 'min');
+
         $query = $this->getEntityManager()->createNativeQuery(
-            'SELECT r.time, r.type, max(r.value), min(r.value)
+            'SELECT unix_timestamp(r.time) as time, max(r.value), min(r.value)
                     FROM reading r
                     where r.type = :type
                     group by (unix_timestamp(r.time) - (unix_timestamp(r.time)%(:intervalSec)))
-                    ORDER BY r.time DESC',
+                    ORDER BY r.time DESC
+                    limit :limit',
             $rsm
         );
         $query->setParameter("type", $type);
         $query->setParameter("intervalSec", $intervalSec);
+        $query->setParameter("limit", $limit);
 
-        return $query->getScalarResult();
+        return $query->getResult();
     }
 
     // /**
