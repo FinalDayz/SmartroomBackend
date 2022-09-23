@@ -61,7 +61,7 @@ class ReadingRepository extends ServiceEntityRepository
 
         $query = $this->getEntityManager()->createNativeQuery(
             'SELECT r.time, r.type, max(r.value), min(r.value)
-                    FROM App:Reading r
+                    FROM reading r
                     where r.type = :type
                     group by (unix_timestamp(r.time) - (unix_timestamp(r.time)%(:intervalSec)))
                     ORDER BY r.time DESC',
