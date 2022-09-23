@@ -57,18 +57,17 @@ class ReadingRepository extends ServiceEntityRepository
 
     public function getMaxMinTimeInterval(string $type, int $intervalSec)
     {
-        $query = $this->getEntityManager()->createNativeQuery(
+        $query = $this->getEntityManager()->createQuery(
             'SELECT r.time, r.type, max(r.value), min(r.value)
                     FROM reading r
                     where r.type = :type
                     group by (unix_timestamp(r.time) - (unix_timestamp(r.time)%(:intervalSec)))
                     ORDER BY r.time DESC'
         );
-
         $query->setParameter("type", $type);
         $query->setParameter("intervalSec", $intervalSec);
 
-        return $query->getArrayResult();
+        return $query->getScalarResult();
     }
 
     // /**
