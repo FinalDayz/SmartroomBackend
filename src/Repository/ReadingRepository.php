@@ -60,9 +60,9 @@ class ReadingRepository extends ServiceEntityRepository
         $limit = min($limit, 100);
         $rsm = new ResultSetMapping();
 
-        $rsm->addScalarResult('time', 'timestamp');
-        $rsm->addScalarResult('max(r.value)', 'max');
-        $rsm->addScalarResult('min(r.value)', 'min');
+        $rsm->addScalarResult('time', 'timestamp', 'integer');
+        $rsm->addScalarResult('max(r.value)', 'max', 'float');
+        $rsm->addScalarResult('min(r.value)', 'min', 'float');
 
         $query = $this->getEntityManager()->createNativeQuery(
             'SELECT unix_timestamp(r.time) as time, max(r.value), min(r.value)
