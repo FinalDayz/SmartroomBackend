@@ -15,8 +15,8 @@ class Reading
 
     const VALID_TYPES = ['temperature', 'humidity', 'heater', 'connection', 'pressure', 'gas', 'turnOffPi'];
     const DB_UPLOAD_THRESHOLD = [
-        'temperature' => 0.3,
-        'humidity' => 2,
+        'temperature' => 0.175,
+        'humidity' => 3,
         'heater' => 1,
         'connection' => 1,
         'pressure' => 2,
