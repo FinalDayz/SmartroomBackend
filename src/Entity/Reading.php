@@ -24,6 +24,14 @@ class Reading
         'turnOffPi' => 1,
     ];
 
+    public static function getDBThresholdForValue(string $value): float
+    {
+        if (isset(self::DB_UPLOAD_THRESHOLD[$value])) {
+            self::DB_UPLOAD_THRESHOLD[$value];
+        }
+        return 1;
+    }
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -63,8 +71,8 @@ class Reading
 
     public function setType(string $type): self
     {
-        if($type != null && !in_array($type, self::VALID_TYPES))
-            throw new \InvalidArgumentException("Invalid type '".$type."'");
+        if ($type != null && !in_array($type, self::VALID_TYPES))
+            throw new \InvalidArgumentException("Invalid type '" . $type . "'");
         $this->type = $type;
 
         return $this;

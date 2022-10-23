@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -51,5 +52,19 @@ class DataUploadController extends AbstractController
         return new JsonResponse(
             $realTimeData->getAllReadingData()
         );
+    }
+
+    public function mqttEntry(Request $request, ReadingHelper $realTimeData, ActionHelper $actionHelper) {
+        $body = json_decode($request->getContent(), true);
+
+        $dataValue = $body['data'];
+        $topics = $body['topics'];
+
+        if($topics[0] !== 'smartroom') {
+            throw new NotFoundHttpException();
+        }
+
+        $readingType = $topics[1];
+
     }
 }

@@ -147,6 +147,7 @@ class ReadingHelper extends AbstractCacheManager
                 $lastDBValues[$readingType] = $reading->getValue();
                 $dbChanges = true;
                 $this->entityManager->persist($reading);
+
             }
         }
         if($dbChanges) {

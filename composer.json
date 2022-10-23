@@ -14,6 +14,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
         "nelmio/cors-bundle": "^2.1",
+        "php-mqtt/client": "^1.4",
         "symfony/cache": "5.2.*",
         "symfony/console": "5.2.*",
         "symfony/dotenv": "5.2.*",
