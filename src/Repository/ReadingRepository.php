@@ -38,12 +38,12 @@ class ReadingRepository extends ServiceEntityRepository
             'SELECT r.id, r.type, r.time, r.value
                     FROM reading r
                     JOIN (
-                        SELECT type, max(time) maxTime
+                        SELECT type, max(id) maxTime
                             from reading
                             group by type
                         ) maxReading 
                     on r.type = maxReading.type
-                    where r.time = maxReading.maxTime',
+                    where r.id = maxReading.maxTime',
             $rsm
         );
 

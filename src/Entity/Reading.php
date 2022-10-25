@@ -13,6 +13,9 @@ use http\Exception\InvalidArgumentException;
 class Reading
 {
 
+    /**
+     * @deprecated
+     */
     const VALID_TYPES = ['temperature', 'humidity', 'heater', 'connection', 'pressure', 'gas', 'turnOffPi'];
     const DB_UPLOAD_THRESHOLD = [
         'temperature' => 0.175,
@@ -27,7 +30,7 @@ class Reading
     public static function getDBThresholdForValue(string $value): float
     {
         if (isset(self::DB_UPLOAD_THRESHOLD[$value])) {
-            self::DB_UPLOAD_THRESHOLD[$value];
+            return self::DB_UPLOAD_THRESHOLD[$value];
         }
         return 1;
     }
@@ -71,8 +74,6 @@ class Reading
 
     public function setType(string $type): self
     {
-        if ($type != null && !in_array($type, self::VALID_TYPES))
-            throw new \InvalidArgumentException("Invalid type '" . $type . "'");
         $this->type = $type;
 
         return $this;

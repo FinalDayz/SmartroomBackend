@@ -75,7 +75,7 @@ class DataManager extends AbstractCacheManager
         foreach($newValues as $readingType => $readingValue) {
             $threshold = Reading::getDBThresholdForValue($readingType);
 
-            if(isset($lastInsertValues[$readingType]) &&
+            if(!isset($lastInsertValues[$readingType]) ||
                 abs($readingValue - $lastInsertValues[$readingType]) >= $threshold) {
                 // Value changed enough to persist it
                 $lastInsertValues[$readingType] = $readingValue;
@@ -86,6 +86,7 @@ class DataManager extends AbstractCacheManager
                 $this->entityManager->persist($reading);
             }
         }
+
         if($dbChanges) {
             $this->setData(self::CACHE_LAST_INSERT, $lastInsertValues);
             $this->entityManager->flush();
